@@ -16,6 +16,7 @@ body {
     background-color: var(--bg-darker);
     color: var(--text-primary);
     font-family: 'Consolas', 'Courier New', monospace;
+    overflow: hidden;
 }
 
 .dashboard-container {
@@ -23,6 +24,7 @@ body {
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+    position: relative;
 }
 
 .control-panel {
@@ -34,6 +36,8 @@ body {
     flex-direction: column;
     box-sizing: border-box;
     flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
 }
 
 .brand {
@@ -127,6 +131,7 @@ body {
     padding: 30px;
     box-sizing: border-box;
     overflow: hidden;
+    height: 100%;
 }
 
 .workspace-header {
@@ -179,7 +184,6 @@ body {
 .chat-row {
     display: flex;
     margin-bottom: 25px;
-    animation: fadeIn 0.3s ease-out forwards;
 }
 
 .message-wrapper {
@@ -296,6 +300,7 @@ body {
 .console-input-bar {
     display: flex;
     gap: 15px;
+    width: 100%;
 }
 
 .cyber-input {
@@ -309,6 +314,7 @@ body {
     outline: none;
     font-size: 0.95rem;
     transition: all 0.3s;
+    min-width: 0;
 }
 
     .cyber-input:focus {
@@ -328,6 +334,7 @@ body {
     cursor: pointer;
     transition: all 0.3s;
     box-shadow: 0 0 15px rgba(102, 252, 241, 0.2);
+    white-space: nowrap;
 }
 
     .cyber-button:hover:not(:disabled) {
@@ -342,17 +349,17 @@ body {
         cursor: not-allowed;
     }
 
+/* 📱 Responsive Media Rules */
 @media (max-width: 900px) {
     .dashboard-container {
         flex-direction: column;
-        overflow-y: auto;
     }
 
     .control-panel {
         width: 100%;
         border-right: none;
         border-bottom: 1px solid #232d38;
-        padding: 20px;
+        padding: 15px 20px;
     }
 
     .brand {
@@ -360,35 +367,45 @@ body {
     }
 
     .control-panel h3 {
-        margin-top: 15px;
-        margin-bottom: 8px;
+        margin-top: 10px;
+        margin-bottom: 6px;
     }
 
     .system-status {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 8px;
     }
 
     .status-item {
         margin-bottom: 0;
         background: #0f131a;
-        padding: 8px 12px;
+        padding: 6px 10px;
         border-radius: 4px;
         border: 1px solid #232d38;
     }
 
     .chat-workspace {
-        padding: 20px;
-        height: 70vh;
+        padding: 15px;
+        height: calc(100vh - 180px);
     }
 
-    .workspace-header h1 {
-        font-size: 1.5rem;
+    .workspace-header {
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+        .workspace-header h1 {
+            font-size: 1.3rem;
+        }
+
+    .subtitle {
+        font-size: 0.75rem;
     }
 
     .terminal-screen {
         padding: 15px;
+        margin-bottom: 15px;
     }
 
     .message-wrapper {
@@ -411,18 +428,38 @@ body {
 
     .cyber-button {
         padding: 0 20px;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .empty-state {
+        margin-top: 5%;
+    }
+
+    .terminal-icon {
+        font-size: 2rem;
     }
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
+@media (max-width: 480px) {
+    .system-status {
+        grid-template-columns: 1fr;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .workspace-header {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
     }
+
+    .code-block-header {
+        padding: 6px 12px;
+    }
+
+    .code-block-container {
+        padding: 12px !important;
+    }
+
+        .code-block-container code {
+            font-size: 0.8rem !important;
+        }
 }

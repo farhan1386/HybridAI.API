@@ -1,12 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import './App.css';
 
 const API_URL = "http://localhost:5006/api/chat/stream";
 
-const CodeBlock = ({ codeText }) => {
-    const [copied, setCopied] = useState(false);
+interface ChatMessageDto {
+    role: 'user' | 'assistant';
+    content: string;
+}
 
-    const handleCopy = async () => {
+interface CodeBlockProps {
+    codeText: string;
+}
+
+const CodeBlock = ({ codeText }: CodeBlockProps) => {
+    const [copied, setCopied] = useState<boolean>(false);
+
+    const handleCopy = async (): Promise<void> => {
         try {
             await navigator.clipboard.writeText(codeText);
             setCopied(true);
@@ -32,16 +42,16 @@ const CodeBlock = ({ codeText }) => {
 };
 
 function App() {
-    const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState('');
-    const [isStreaming, setIsStreaming] = useState(false);
-    const chatEndRef = useRef(null);
+    const [messages, setMessages] = useState<ChatMessageDto[]>([]);
+    const [input, setInput] = useState<string>('');
+    const [isStreaming, setIsStreaming] = useState<boolean>(false);
+    const chatEndRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    const renderMessageContent = (content) => {
+    const renderMessageContent = (content: string) => {
         if (!content) return "";
 
         const parts = content.split(/(```csharp|```)/g);
@@ -61,11 +71,11 @@ function App() {
         });
     };
 
-    const handleSendMessage = async (e) => {
+    const handleSendMessage = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
         if (!input.trim() || isStreaming) return;
 
-        const userMessage = { role: 'user', content: input };
+        const userMessage: ChatMessageDto = { role: 'user', content: input };
         const initialHistory = [...messages, userMessage];
 
         setMessages([...initialHistory, { role: 'assistant', content: '' }]);
@@ -78,13 +88,15 @@ function App() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     provider: 'local',
-                    history: initialHistory.map(msg => ({ role: msg.role, content: msg.content }))
+                    history: initialHistory
                 })
             });
 
             if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
 
-            const reader = response.body.getReader();
+            const reader = response.body?.getReader();
+            if (!reader) throw new Error("Response body is not readable.");
+
             const decoder = new TextDecoder();
             let accumulator = '';
 
@@ -98,12 +110,15 @@ function App() {
                 setMessages((prev) => {
                     const updated = [...prev];
                     if (updated.length > 0) {
-                        updated[updated.length - 1].content = accumulator;
+                        updated[updated.length - 1] = {
+                            ...updated[updated.length - 1],
+                            content: accumulator
+                        };
                     }
                     return updated;
                 });
             }
-        } catch (error) {
+        } catch (error: any) {
             setMessages((prev) => [
                 ...prev.slice(0, -1),
                 { role: 'assistant', content: `⚠️ Pipeline Exception Intercepted: ${error.message}.` }
@@ -115,7 +130,6 @@ function App() {
 
     return (
         <div className="dashboard-container">
-            {/* 🧭 Control Sidebar */}
             <aside className="control-panel">
                 <div className="brand">
                     <div className="logo-glow">⚡</div>
@@ -140,12 +154,11 @@ function App() {
                     </div>
                     <div className="status-item">
                         <span>UI Layer:</span>
-                        <span className="badge-tech">React SPA</span>
+                        <span className="badge-tech">React + TS</span>
                     </div>
                 </div>
             </aside>
 
-            {/* 💬 Main Execution Workspace */}
             <main className="chat-workspace">
                 <header className="workspace-header">
                     <h1>Local AI Intelligence Hub</h1>
