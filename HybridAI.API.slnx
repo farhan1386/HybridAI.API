@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="hybridai-ui/hybridai-ui.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="HybridAI.API/HybridAI.API.csproj" />
+</Solution>
